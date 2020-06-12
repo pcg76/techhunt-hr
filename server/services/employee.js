@@ -18,15 +18,63 @@ function performQuery(data, cb) {
                     }
                 });
             } else { // got record
-                let update_data = [data.login, data.name, data.salary, data.id];
-                dbConfig.getDB().query("UPDATE employee SET login = ?, name = ?, salary = ? \
-                    WHERE id = ?", update_data, function(updateErr, dbData) {
-                    if (updateErr) {
-                        return cb(updateErr);
-                    } else {
-                        cb();
-                    }
-                });
+                // check login map to different id
+                if (rows[0].login != data.login) {
+                    // check for existing login id in DB
+                    db.query("SELECT * FROM employee WHERE login = ?", [data.login], function(loginErr, login_rows) {
+                        if (loginErr) {
+                            return cb(loginErr);
+                        } else {
+                            if (login_rows.length > 0) { // there's an existing record, proceed to swap
+                                let temp_data = [data.login + data.login, data.id];
+                                let first_login = rows[0].login;
+                                dbConfig.getDB().query("UPDATE employee SET login = ? \
+                                    WHERE id = ?", temp_data, function (tempUpdateErr, tempData) {
+                                    if (tempUpdateErr) {
+                                        return cb(tempUpdateErr);
+                                    } else {
+                                        let second_login_data = [first_login, rows[0].name, rows[0].salary, login_rows[0].id];
+                                        dbConfig.getDB().query("UPDATE employee SET login = ?, name = ?, salary = ? \
+                                            WHERE id = ?", second_login_data, function (secondUpdateErr, secondData) {
+                                            if (secondUpdateErr) {
+                                                return cb(secondUpdateErr);
+                                            } else {
+                                                let final_login_data = [data.login, data.name, data.salary, data.id];
+                                                dbConfig.getDB().query("UPDATE employee SET login = ?, name = ?, salary = ? \
+                                                    WHERE id = ?", final_login_data, function (finalUpdateErr, finalData) {
+                                                    if (finalUpdateErr) {
+                                                        return cb(finalUpdateErr);
+                                                    } else {
+                                                        cb();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            } else {
+                                dbConfig.getDB().query("UPDATE employee SET login = ?, name = ?, salary = ? \
+                                    WHERE id = ?", update_data, function(updateErr, dbData) {
+                                    if (updateErr) {
+                                        return cb(updateErr);
+                                    } else {
+                                        cb();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    let update_data = [data.login, data.name, data.salary, data.id];
+                    dbConfig.getDB().query("UPDATE employee SET login = ?, name = ?, salary = ? \
+                        WHERE id = ?", update_data, function(updateErr, dbData) {
+                        if (updateErr) {
+                            return cb(updateErr);
+                        } else {
+                            cb();
+                        }
+                    });
+                }
             }
         }
     });
