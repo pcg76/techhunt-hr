@@ -25,7 +25,7 @@ router.post('/upload', (req, res) => {
         if (isProcessing == true) {
             isError = true;
             console.log('File uploading in progress...');
-            res.status(500).send('File uploading in progress...');
+            res.status(util.statusCode.FIVE_ZERO_ZERO).send('File uploading in progress...');
             return;
         }
 
@@ -35,7 +35,7 @@ router.post('/upload', (req, res) => {
             .on('error', (e) => {
                 console.log(e.message);
                 isProcessing = false;
-                res.status(500).send({message: e.message});
+                res.status(util.statusCode.FIVE_ZERO_ZERO).send({message: e.message});
             })
             .pipe(csv({
                 skipComments: '#',
@@ -57,7 +57,7 @@ router.post('/upload', (req, res) => {
                 if (isNaN(n_salary) || n_salary < 0.0) {
                     isError = true;
                     isProcessing = false;
-                    res.status(500).send({message: 'Invalid salary found in CSV file!'});
+                    res.status(util.statusCode.FIVE_ZERO_ZERO).send({message: 'Invalid salary found in CSV file!'});
                 } else {
                     const employee = {
                         id: row.id,
@@ -88,26 +88,24 @@ router.post('/upload', (req, res) => {
                     if (status == true) {
                         isProcessing = false;
                         console.log('Duplicates found!');
-                        res.status(500).send({message: 'Duplicates found in CSV file!'});
+                        res.status(util.statusCode.FIVE_ZERO_ZERO).send({message: 'Duplicates found in CSV file!'});
                     } else {
-                        // proceed to insert into database
-                        employee_service.upload(employees, (data) => {
-                            isProcessing = false;
-                            if (data.statusCode == util.statusCode.OK) {
+                        employee_service.uploadEmployee(employees)
+                            .then(resolve => {
+                                isProcessing = false;
                                 res.json();
-                            } else {
-                                res.status(data.statusCode).send(data.statusMessage);
-                            }
-                        });
-
-                        // res.json();
+                            })
+                            .catch(err => {
+                                isProcessing = false;
+                                res.status(err.statusCode).send(err.statusMessage);
+                            });
                     }
                 }
             })
             .on('error', (e) => {
                 isProcessing = false;
                 console.log(e.message);
-                res.status(500).send({message: e.message});
+                res.status(util.statusCode.FIVE_ZERO_ZERO).send({message: e.message});
             })
     });
 
