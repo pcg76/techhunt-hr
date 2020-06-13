@@ -1,1 +1,20 @@
 <h2>Tech Hunt 2020 Dashboard</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>LOGIN</th>
+            <th>NAME</th>
+            <th>SALARY</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr *ngFor="let employee of employees">
+            <td>{{employee.id}}</td>
+            <td>{{employee.login}}</td>
+            <td>{{employee.name}}</td>
+            <td>{{employee.salary}}</td>
+        </tr>
+    </tbody>
+</table>
