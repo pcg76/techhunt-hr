@@ -15,10 +15,6 @@ router.get('', function(request, response) {
     console.log('minSalary: ' + request.query.minSalary + "  maxSalary: " + request.query.maxSalary
         + " offset: " + request.query.offset + " limit: " + request.query.limit
         + " sort: " + request.query.sort);
-    
-    var test = {id: 'e0003', login: 'rwesley', name: 'Ron Weasley', salary: 19234.5};
-    var test1 = {id: 'e0004', login: 'rhagrid', name: 'Rubeus Hagrid', salary: 4000.0};
-    var final_test = { results: [test, test1] };
 
     response.setHeader('Content-Type', 'application/json');
 
