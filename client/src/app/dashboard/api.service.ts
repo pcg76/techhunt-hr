@@ -11,6 +11,7 @@ export class ApiService {
   constructor(private httpClient: HttpClient) { }
 
   public getEmployees() {
-    return this.httpClient.get(url +'?minSalary=0&maxSalary=4000&offset=0&limit=30&sort=+name');
+    var enc = encodeURIComponent('+');
+    return this.httpClient.get(url + '?minSalary=0&maxSalary=4000&offset=0&limit=30&sort=' + enc + 'name');
   }
 }

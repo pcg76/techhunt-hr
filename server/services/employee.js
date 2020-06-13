@@ -118,6 +118,38 @@ let uploadEmployee = async function(dataToSet) {
     });
 }
 
+let getEmployees = async function(dataToSet) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const db = dbConfig.getDB();
+            sort_order = dataToSet.sort[0];
+
+            if (sort_order == '+') {
+                sort_order = ' ASC';
+            } else {
+                sort_order = ' DESC';
+            }
+
+            sql_query = "SELECT * FROM employee"
+                + " WHERE salary >= " + dataToSet.minSalary + " AND salary <= " + dataToSet.maxSalary
+                + " ORDER BY " + dataToSet.sort.substr(1) + sort_order
+                + " LIMIT " + dataToSet.offset + ", " + dataToSet.limit;
+
+            db.query(sql_query, function(selectErr, rows) {
+                if (selectErr) {
+                    console.log(selectErr.message);
+                    reject({ "statusCode": util.statusCode.FOUR_ZERO_ZERO, "statusMessage": selectErr.message });
+                } else {
+                    resolve(rows);
+                }
+            });
+        } catch (error) {
+            reject({ "statusCode": util.statusCode.FOUR_ZERO_ZERO, "statusMessage": error.message });
+        }
+    });
+}
+
 module.exports = {
-    uploadEmployee: uploadEmployee
+    uploadEmployee: uploadEmployee,
+    getEmployees: getEmployees
 };

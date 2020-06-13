@@ -21,7 +21,15 @@ router.get('', function(request, response) {
     var final_test = { results: [test, test1] };
 
     response.setHeader('Content-Type', 'application/json');
-    response.send(JSON.stringify(final_test));
+
+    employee_service.getEmployees(request.query)
+        .then(resolve => {
+            res = { results: resolve};
+            response.send(JSON.stringify(res));
+        })
+        .catch(err => {
+            response.send(JSON.stringify(err));
+        });
 });
 
 /**Api to upload employee */
